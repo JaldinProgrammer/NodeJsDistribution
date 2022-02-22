@@ -1,5 +1,30 @@
 const { response, request } = require('express');
 
+const db = require('../../database/models/index'); //requiring model
+const UserModel = db['User']; //select the User model
+const bcryptjs = require('bcryptjs');
+const { generarJWT } = require('../helpers/generarToken');
+
+
+const getLoggedUser = async(req = request,res = response) => {
+    try {
+        if(req.loggedUser === null){
+        return res.status(401).json({message: 'no paso por la validacion del token'});
+        }
+        res.json({
+            data:req.loggedUser,
+            message: 'datos del usuario'
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'JaldinServer:error at login, plis talk to the administrator',
+        });
+    }
+}
+
+
+
 const getUser =  (req = request,res = response) => {
     //querys params
     // 
@@ -13,13 +38,33 @@ const getUser =  (req = request,res = response) => {
     });
 }
 
-const postUser =  (req = request,res = response) => {
-    const body = req.body;
-    res.json({
-        msq: 'post API',
-        body,
-        "hola": "que flojera"
-    });
+const createUser =  async(req = request,res = response) => {
+    try {
+        const salt = bcryptjs.genSaltSync();
+        const {name, email, password} = req.body;
+        const checkEmail = await UserModel.findOne({ where: { email: email } });
+        if(checkEmail){
+            return res.status(401).json({message: `El correo ${email} ya esta en uso, elija otro email`,})
+        }
+        const user = await UserModel.create({
+            name,
+            email,
+            password: bcryptjs.hashSync(password,salt)
+        });
+        const token = await generarJWT(user.id);
+        return res.json({
+            message: 'usuario creado con exito',
+            data: user,
+            token
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(401).json(
+            {
+                message: 'No se pudo crear usuario :c',
+            }
+        )
+    }  
 }
 
 const putUser =  (req,res) => {
@@ -42,6 +87,7 @@ const deleteUser =  (req,res) => {
 module.exports = {
     getUser,
     putUser,
-    postUser,
+    createUser,
     deleteUser,
+    getLoggedUser
 }
