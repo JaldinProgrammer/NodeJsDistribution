@@ -18,7 +18,7 @@ const getLoggedUser = async(req = request,res = response) => {
     } catch (error) {
         console.log(error);
         res.status(500).json({
-            msg: 'JaldinServer:error at login, plis talk to the administrator',
+            message: 'JaldinServer:error habla con el administrador',
         });
     }
 }

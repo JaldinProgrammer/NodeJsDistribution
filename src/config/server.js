@@ -7,6 +7,8 @@ class Server {
         this.port = process.env.PORT;
         this.userRoutePath = '/api/users';
         this.authPath = '/api/auth';
+        this.enterprisePath = '/api/enterprise';
+        this.enterpriseTypePath = '/api/enterpriseType';
         //Middlewares
         this.middlewares();
         //rutas
@@ -26,6 +28,8 @@ class Server {
     routes(){
         this.app.use(this.userRoutePath, require('../routes/user.routes'));
         this.app.use(this.authPath, require('../routes/auth.routes'));
+        this.app.use(this.enterprisePath, require('../routes/enterprise.routes'));
+        this.app.use(this.enterpriseTypePath, require('../routes/enterpriseType.routes'));
     }
 
     listen(){
