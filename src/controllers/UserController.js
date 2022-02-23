@@ -23,18 +23,11 @@ const getLoggedUser = async(req = request,res = response) => {
     }
 }
 
-
-
-const getUser =  (req = request,res = response) => {
-    //querys params
-    // 
-    const query = req.query;
-    // con la desestructuracion podemos elegir los query params que queramos
-    //y ademas settearles valores default
-    //const {nombre= 'no name', edad = 21} = req.query;
+const getUserbyID =  async(req = request,res = response) => {
+    const user = await UserModel.findByPk(req.params.id);
     res.json({
-        msq: 'get API',
-        query
+        message: `El Usuario ${user.name} es mostrado`,
+        data: user
     });
 }
 
@@ -67,27 +60,51 @@ const createUser =  async(req = request,res = response) => {
     }  
 }
 
-const putUser =  (req,res) => {
-    const id = req.params.id; // this is to pass the id of something through the url
+const updateUser =  async(req,res) => {
+    //const id = req.params.id; // this is to pass the id of something through the url
    // const {id} = req.params.id; also u can make it like that
    // the url comes with an STRING data should parse it if I need int
+   // req.query para pasar parametros por los PARAMS de la url
+    const { name, email} = req.body;
+    await UserModel.update({ name, email}, {
+        where: {id: req.params.id }
+    });
+    const user = await UserModel.findByPk(req.params.id);
     res.json({
-        msq: 'put API',
-        id
+        message: `Usuario ${user.name} actualizado con exito`,
+        data: user
     });
 }
 
-const deleteUser =  (req,res) => {
+const activeUser = async(req,res) => {
+    await UserModel.update({ status: true}, {
+        where: {id: req.params.id }
+    });
+    const user = await UserModel.findByPk(req.params.id);
     res.json({
-        msq: 'delete API'
+        message: `Usuario ${user.name} activado con exito`,
+        data: user
     });
 }
+
+const desactiveUser = async(req,res) => {
+    await UserModel.update({ status: false}, {
+        where: {id: req.params.id }
+    });
+    const user = await UserModel.findByPk(req.params.id);
+    res.json({
+        message: `Usuario ${user.name} desactivado con exito`,
+        data: user
+    });
+}
+
 
 
 module.exports = {
-    getUser,
-    putUser,
+    getUserbyID,
+    updateUser,
     createUser,
-    deleteUser,
-    getLoggedUser
+    getLoggedUser,
+    activeUser,
+    desactiveUser
 }

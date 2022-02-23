@@ -22,7 +22,6 @@ const login = async (req = request, res = response) => {
         if (!bcryptjs.compareSync(password,user.password)) {
             return res.status(500).json({message:'Contraseña incorrecta'});
         }
-
         const token = await generarJWT(user.id);
           
         return res.json({
